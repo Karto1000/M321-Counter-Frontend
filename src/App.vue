@@ -1,47 +1,74 @@
 <script setup lang="ts">
-import HelloWorld from './components/HelloWorld.vue'
-import TheWelcome from './components/TheWelcome.vue'
+import {onBeforeUnmount, onMounted, ref} from 'vue'
+
+const hosts = [5000, 5001, 5002]
+
+const timer = ref()
+const counters = [
+  ref(0),
+  ref(0),
+  ref(0)
+]
+
+const onIncrement = async (index: number) => {
+  const response: Response = await fetch(
+      `http://localhost:${hosts[index]}/increment`,
+      {method: 'POST'}
+  )
+  counters[index].value = Number.parseInt(await response.text())
+}
+
+const getCounter = async (index: number): Promise<number> => {
+  const response: Response = await fetch(
+      `http://localhost:${hosts[index]}/count`
+  )
+  return Number.parseInt(await response.text())
+}
+
+onMounted(async () => {
+  timer.value = setInterval(() => {
+    hosts.forEach(async (host, index) => {
+      counters[index].value = await getCounter(index)
+    })
+  }, 1000)
+
+  for (let i = 0; i < hosts.length; i++) {
+    counters[i].value = await getCounter(i)
+  }
+})
+
+onBeforeUnmount(() => {
+  clearInterval(timer.value)
+})
+
 </script>
 
 <template>
   <header>
-    <img alt="Vue logo" class="logo" src="./assets/logo.svg" width="125" height="125" />
 
-    <div class="wrapper">
-      <HelloWorld msg="You did it!" />
-    </div>
   </header>
 
   <main>
-    <TheWelcome />
+    <div class="increments-container">
+      <div class="increment-container" v-for="(counter, index) in counters">
+        <button @click="onIncrement(index)">Increment</button>
+        <p>Counter {{ counter }}</p>
+      </div>
+    </div>
   </main>
 </template>
 
 <style scoped>
-header {
-  line-height: 1.5;
+.increments-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
-}
-
-@media (min-width: 1024px) {
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
-  }
-
-  .logo {
-    margin: 0 2rem 0 0;
-  }
-
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
-  }
+.increment-container {
+  height: 32px;
+  display: flex;
+  gap: 16px;
+  align-items: center;
 }
 </style>
