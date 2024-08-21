@@ -4,6 +4,7 @@ import {onBeforeUnmount, onMounted, ref} from 'vue'
 const hosts = [5000, 5001, 5002]
 
 const timer = ref()
+const lastClicked = ref(0)
 const counters = [
   ref(0),
   ref(0),
@@ -11,11 +12,14 @@ const counters = [
 ]
 
 const onIncrement = async (index: number) => {
-  const response: Response = await fetch(
+  counters.forEach(c => c.value += 1)
+
+  lastClicked.value = Date.now()
+
+  await fetch(
       `http://localhost:${hosts[index]}/increment`,
       {method: 'POST'}
   )
-  counters[index].value = Number.parseInt(await response.text())
 }
 
 const getCounter = async (index: number): Promise<number> => {
@@ -27,10 +31,12 @@ const getCounter = async (index: number): Promise<number> => {
 
 onMounted(async () => {
   timer.value = setInterval(() => {
+    if (Date.now() - lastClicked.value < 2000) return
+
     hosts.forEach(async (host, index) => {
       counters[index].value = await getCounter(index)
     })
-  }, 1000)
+  }, 2000)
 
   for (let i = 0; i < hosts.length; i++) {
     counters[i].value = await getCounter(i)
