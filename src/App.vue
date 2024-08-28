@@ -1,15 +1,11 @@
 <script setup lang="ts">
 import {onBeforeUnmount, onMounted, ref} from 'vue'
 
-const hosts = [5000, 5001, 5002]
+const hosts = [80]
 
 const timer = ref()
 const lastClicked = ref(0)
-const counters = [
-  ref(0),
-  ref(0),
-  ref(0)
-]
+const counters = [ref(0)]
 
 const onIncrement = async (index: number) => {
   counters.forEach(c => c.value += 1)
