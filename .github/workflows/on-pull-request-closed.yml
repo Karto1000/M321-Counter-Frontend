@@ -1,4 +1,4 @@
-name: Create Tags
+name: On Closed
 run-name: Create Tags
 on:
   pull_request:
@@ -20,13 +20,13 @@ jobs:
 
   deploy-aws:
     runs-on: ubuntu-latest
-    env:
-      aws_access_key_id: ${{AWS_ACCESS_KEY_ID}}
-      aws_secret_access_key: ${{AWS_SECRET_ACCESS_KEY}}
-      aws_session_token: ${{AWS_SESSION_TOKEN}}
 
     steps:
       - uses: actions/checkout@v4
+
+      - uses: c-py/action-dotenv-to-setenv@v5
+        with:
+          env-file: .env
 
       - name: Install NodeJS
         run: sudo apt install nodejs
