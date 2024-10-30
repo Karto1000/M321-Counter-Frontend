@@ -51,6 +51,7 @@ onBeforeUnmount(() => {
   </header>
 
   <main>
+    <h1>Counter App</h1>
     <div class="increments-container">
       <div class="increment-container" v-for="(counter, index) in counters">
         <button @click="onIncrement(index)">Increment</button>

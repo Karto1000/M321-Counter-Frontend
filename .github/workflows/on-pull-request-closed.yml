@@ -1,0 +1,47 @@
+name: Create Tags
+run-name: Create Tags
+on:
+  pull_request:
+    types:
+      - closed
+    branches:
+      - main
+jobs:
+  create-tags:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Bump version and push tag
+        uses: mathieudutour/github-tag-action@v6.2
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
+  deploy-aws:
+    runs-on: ubuntu-latest
+    env:
+      aws_access_key_id: ${{AWS_ACCESS_KEY_ID}}
+      aws_secret_access_key: ${{AWS_SECRET_ACCESS_KEY}}
+      aws_session_token: ${{AWS_SESSION_TOKEN}}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install NodeJS
+        run: sudo apt install nodejs
+
+      - name: Install AWS Cli
+        run: sudo apt install awscli
+
+      - name: Create credentials File
+        run: |
+          touch ~/. aws/credentials
+          echo "
+            [default]
+            aws_access_key_id=$aws_access_key_id
+            aws_secret_access_key=$aws_secret_access_key
+            aws_session_token=$aws_session_token
+
+      - name: Upload to S3
+        run: npm run deploy-aws

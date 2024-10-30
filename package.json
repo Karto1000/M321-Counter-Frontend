@@ -8,7 +8,8 @@
     "build": "run-p type-check \"build-only {@}\" --",
     "preview": "vite preview",
     "build-only": "vite build",
-    "type-check": "vue-tsc --build --force"
+    "type-check": "vue-tsc --build --force",
+    "deploy-aws": "npm run build && aws --region us-east-1 --profile default s3 sync ./dist s3://terraform-getting-started-guide-frontend-bucket"
   },
   "dependencies": {
     "vue": "^3.4.29"
